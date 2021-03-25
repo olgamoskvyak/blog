@@ -97,7 +97,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      13 min read
+      15 min read
     
 </span></p>
 
@@ -139,11 +139,10 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
-<li class="toc-entry toc-h3"><a href="#TODO">TODO </a></li>
-<li class="toc-entry toc-h2"><a href="#Discussion">Discussion </a></li>
-<li class="toc-entry toc-h2"><a href="#Formula">Formula </a></li>
-<li class="toc-entry toc-h2"><a href="#Differentiable-transformations">Differentiable transformations </a></li>
-<li class="toc-entry toc-h2"><a href="#Implementation">Implementation </a></li>
+<li class="toc-entry toc-h1"><a href="#Introduction">Introduction </a></li>
+<li class="toc-entry toc-h1"><a href="#Formula">Formula </a></li>
+<li class="toc-entry toc-h1"><a href="#Differentiable-transformations">Differentiable transformations </a></li>
+<li class="toc-entry toc-h1"><a href="#Implementation">Implementation </a></li>
 <li class="toc-entry toc-h1"><a href="#Example-1:-Dummy-data-on-1-layer-CNN-model">Example 1: Dummy data on 1-layer CNN model </a></li>
 <li class="toc-entry toc-h1"><a href="#Example-2:-Real-data-on-1-layer-CNN-model">Example 2: Real data on 1-layer CNN model </a></li>
 <li class="toc-entry toc-h1"><a href="#Example-3:-Real-data-on-pre-trained-segmentation-model">Example 3: Real data on pre-trained segmentation model </a></li>
@@ -159,23 +158,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="TODO">
-<a class="anchor" href="#TODO" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODO<a class="anchor-link" href="#TODO"> </a>
-</h3>
-<ul>
-<li>[ ] Add references to previous works</li>
-<li>[ ] Add code with TE loss implementation?</li>
-</ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Discussion">
-<a class="anchor" href="#Discussion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Discussion<a class="anchor-link" href="#Discussion"> </a>
-</h2>
+<h1 id="Introduction">
+<a class="anchor" href="#Introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction<a class="anchor-link" href="#Introduction"> </a>
+</h1>
 </div>
 </div>
 </div>
@@ -198,14 +183,6 @@ TE constraint ensures that the output of the model changes the same way as the i
     <svg class="octicon octicon-zap octicon octicon-zap octicon octicon-zap" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M10.561 1.5a.016.016 0 00-.01.004L3.286 8.571A.25.25 0 003.462 9H6.75a.75.75 0 01.694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0012.538 7H9.25a.75.75 0 01-.683-1.06l2.008-4.418.003-.006a.02.02 0 00-.004-.009.02.02 0 00-.006-.006L10.56 1.5zM9.504.43a1.516 1.516 0 012.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.25 1.25 0 01-.871.354h-.302a1.25 1.25 0 01-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429z"></path></svg>
     <strong>Important: </strong>In case of supervised training (ground truth annotations are available for the whole training set), the model attains transformation equivariance via data augmentation. TE loss is useful in unsupervised or self-supervised settings (without ground truth labels). 
 </div>
-<div class="flash">
-    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
-    <strong>Note: </strong>For the clarity of the discussion, we narrow down to the object segmentation task. The same approach applies to instance segmentation and keypoint localization. 
-</div>
-<div class="flash">
-    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
-    <strong>Note: </strong>We talk only about transformation in space and not color transformations. Color perturbations does not change detected objects in space. 
-</div>
 
 </div>
 </div>
@@ -213,9 +190,9 @@ TE constraint ensures that the output of the model changes the same way as the i
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Formula">
+<h1 id="Formula">
 <a class="anchor" href="#Formula" aria-hidden="true"><span class="octicon octicon-link"></span></a>Formula<a class="anchor-link" href="#Formula"> </a>
-</h2>
+</h1>
 </div>
 </div>
 </div>
@@ -227,24 +204,11 @@ Function $D$ depends on the application and can be a mean squared error or a <a 
 <strong>Transformation Equivariance (TE)</strong> loss is formulated as follows:</p>
 $$
 L_{TE}(x) = D\big(F(T(x)) - T(F(x))\big)
-$$
+$$<p></p>
+<div class="flash">
+    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
+    <strong>Note: </strong>The formula above is applicable to spatial transformations and not color transformations. Color perturbations does not change detected objects in space. 
 </div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Differentiable-transformations">
-<a class="anchor" href="#Differentiable-transformations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Differentiable transformations<a class="anchor-link" href="#Differentiable-transformations"> </a>
-</h2>
-<p>Optimization of TE loss in the formula above requires to <strong>backpropagate through the transformation</strong>. 
-While image transformations are provided in many augmentation pipelines such as <a href="https://pytorch.org/vision/stable/transforms.html">Pytorch Torchvision transforms</a>, <a href="https://keras.io/api/preprocessing/image/">Keras image data preprocessing</a>, <a href="https://github.com/aleju/imgaug">imgaug</a> and <a href="https://opencv.org/">OpenCV</a>, these transformations do not support differentiation.</p>
-<p>Fortunately, a new library <a href="https://kornia.readthedocs.io/en/latest/index.html"><strong>Kornia</strong></a> comes to the resque to implement differentiable image transformations.
-Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
-<blockquote>
-<p>-- <cite>Inspired by OpenCV, this library is composed by a subset of packages containing operators that can be inserted within neural networks to train models to perform image transformations, ... that operate directly on tensors. </cite></p>
-</blockquote>
-<p>Now let's see how TE loss is computed on three examples.</p>
 
 </div>
 </div>
@@ -252,19 +216,33 @@ Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Implementation">
-<a class="anchor" href="#Implementation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation<a class="anchor-link" href="#Implementation"> </a>
-</h2>
+<h1 id="Differentiable-transformations">
+<a class="anchor" href="#Differentiable-transformations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Differentiable transformations<a class="anchor-link" href="#Differentiable-transformations"> </a>
+</h1>
+<p>Optimization of TE loss in the formula above requires to <strong>backpropagate through the transformation</strong>. 
+While image transformations are provided in many augmentation pipelines such as <a href="https://pytorch.org/vision/stable/transforms.html">Pytorch Torchvision transforms</a>, <a href="https://keras.io/api/preprocessing/image/">Keras image data preprocessing</a>, <a href="https://github.com/aleju/imgaug">imgaug</a> and <a href="https://opencv.org/">OpenCV</a>, these transformations do not support differentiation.</p>
+<p>Fortunately, a new library <a href="https://kornia.readthedocs.io/en/latest/index.html"><strong>Kornia</strong></a> comes to the resque to implement differentiable image transformations.
+Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
+<blockquote>
+<p>-- <cite>Inspired by OpenCV, this library is composed by a subset of packages containing operators that can be inserted within neural networks to train models to perform image transformations, ... that operate directly on tensors. </cite></p>
+</blockquote>
+
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Example-1:-Dummy-data-on-1-layer-CNN-model">
-<a class="anchor" href="#Example-1:-Dummy-data-on-1-layer-CNN-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example 1: Dummy data on 1-layer CNN model<a class="anchor-link" href="#Example-1:-Dummy-data-on-1-layer-CNN-model"> </a>
+<h1 id="Implementation">
+<a class="anchor" href="#Implementation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation<a class="anchor-link" href="#Implementation"> </a>
 </h1>
-<p>The first example is on dummy data and 1-layer convolutional model.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's look at the implementation of the TE loss with PyTorch and Kornia:</p>
 
 </div>
 </div>
@@ -276,9 +254,11 @@ Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">tf_equivariance_loss</span> <span class="kn">import</span> <span class="n">TfEquivarianceLoss</span>
-<span class="kn">import</span> <span class="nn">torch</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">kornia</span>
+<span class="kn">from</span> <span class="nn">kornia.geometry.transform</span> <span class="kn">import</span> <span class="n">Resize</span>
+<span class="kn">import</span> <span class="nn">random</span>
 </pre></div>
 
     </div>
@@ -291,7 +271,129 @@ Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Get random dummy data:</p>
+<p>Let's define a class for TE loss. Constructor initializes parameters of the loss. <code>forward</code> function computes the loss on <code>tfx</code> - transformed output of the model output on image <code>x</code> and <code>ftx</code> - the model output on transformed input image <code>x</code>.</p>
+<p>Parameter <code>tf_matrices</code> is a tensor of transformation matrices that is generated for each batch with the method <code>set_tf_matrices</code>. Each image in the batch is transformed differently. The shape of the <code>tf_matrices</code> tensor depends on the transformation, e.g., shape (batch_size, 2, 3) for rotation, (batch_size, 3, 3) for perspective transformations. The same transformation is applied to input image $x$ and the model output $F(x)$.</p>
+<p>Method <code>transform</code> applies affine transformation with the matrices <code>tf_matrices</code>.
+The same transformation matrices can be applied to the input image and output of the model only if the spatial dimensions (heights and width) are the same. However, in practice output of models is smaller than the input because it reduces the number of parameters.
+If dimensions of the input and the output are different, our implementation uses <code>Resize</code> method with  bilinear interpolation from Kornia to resize the output of the model to match the image size before the loss computation.</p>
+<p>The class below implements rotation transformations.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">TfEquivarianceLoss</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">""" Transformation Equivariance Loss</span>
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">transform_type</span><span class="o">=</span><span class="s1">'rotation'</span><span class="p">,</span>
+                 <span class="n">consistency_type</span><span class="o">=</span><span class="s1">'mse'</span><span class="p">,</span>
+                 <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+                 <span class="n">max_angle</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                 <span class="n">input_hw</span><span class="o">=</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span>
+                 <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TfEquivarianceLoss</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform_type</span> <span class="o">=</span> <span class="n">transform_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_angle</span> <span class="o">=</span> <span class="n">max_angle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span> <span class="o">=</span> <span class="n">input_hw</span>
+
+        <span class="k">if</span> <span class="n">consistency_type</span> <span class="o">==</span> <span class="s1">'mse'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consistency</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">consistency_type</span> <span class="o">==</span> <span class="s1">'bse'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">consistency</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BSELoss</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Incorrect consistency_type </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="n">consistency_type</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrices</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">set_tf_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_type</span> <span class="o">==</span> <span class="s1">'rotation'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rotation</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_angle</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">max_angle</span><span class="p">,</span> <span class="n">input_hw</span><span class="p">):</span>
+        <span class="sd">""" Get a list of transformations</span>
+<span class="sd">        Input:</span>
+<span class="sd">            bs (int): batch size = number of transformations to generate</span>
+<span class="sd">        Output:</span>
+<span class="sd">            rot_mat (float torch.Tensor): tensor of shape (bs, 2, 3)</span>
+<span class="sd">        """</span>
+        <span class="c1"># define the rotation center</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">center</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_hw</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># x</span>
+        <span class="n">center</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_hw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># y</span>
+
+        <span class="c1"># create transformation (rotation)</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="n">max_angle</span><span class="p">,</span> <span class="n">max_angle</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bs</span><span class="p">)])</span>
+
+        <span class="c1"># define the scale factor</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+
+        <span class="c1"># compute the transformation matrix</span>
+        <span class="n">tf_matrices</span> <span class="o">=</span> <span class="n">kornia</span><span class="o">.</span><span class="n">get_rotation_matrix2d</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf_matrices</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># If transformation input is different from the input size</span>
+        <span class="c1"># defined for the loss, resize input</span>
+        <span class="c1"># Input size is important because transformation matrices are</span>
+        <span class="c1"># defined for the image size, e.g the center of rotation.</span>
+        <span class="n">resize_input</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">:</span>
+            <span class="n">curr_hw</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">Resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">resize_input</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Transform image</span>
+        <span class="n">tf_x</span> <span class="o">=</span> <span class="n">kornia</span><span class="o">.</span><span class="n">warp_affine</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">float</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrices</span><span class="p">,</span>
+            <span class="n">dsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">)</span>
+
+        <span class="c1"># Transform back if image is resized</span>
+        <span class="k">if</span> <span class="n">resize_input</span><span class="p">:</span>
+            <span class="n">tf_x</span> <span class="o">=</span> <span class="n">Resize</span><span class="p">(</span><span class="n">curr_hw</span><span class="p">)(</span><span class="n">tf_x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf_x</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tfx</span><span class="p">,</span> <span class="n">ftx</span><span class="p">):</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consistency</span><span class="p">(</span><span class="n">tfx</span><span class="p">,</span> <span class="n">ftx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now let's see how TE loss is computed on three examples.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Example-1:-Dummy-data-on-1-layer-CNN-model">
+<a class="anchor" href="#Example-1:-Dummy-data-on-1-layer-CNN-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example 1: Dummy data on 1-layer CNN model<a class="anchor-link" href="#Example-1:-Dummy-data-on-1-layer-CNN-model"> </a>
+</h1>
+<p>The first example is on dummy data and 1-layer convolutional model:</p>
 
 </div>
 </div>

@@ -87,7 +87,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      5 min read
+      6 min read
     
 </span></p>
 
@@ -130,6 +130,8 @@ window.onload = wrap_img;
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#Motivation">Motivation </a></li>
+<li class="toc-entry toc-h2"><a href="#Formula">Formula </a></li>
+<li class="toc-entry toc-h2"><a href="#Differentiable-transformations">Differentiable transformations </a></li>
 <li class="toc-entry toc-h2">
 <a href="#Interactive-Charts-With-Altair">Interactive Charts With Altair </a>
 <ul>
@@ -177,8 +179,12 @@ window.onload = wrap_img;
 <p><strong>Transformation equivariance (TE)</strong> loss is a constraint that can be applied to learning pixel-level labels such as segmentation, keypoint localization or parts detection. 
 TE constraint ensures that the output of the model changes the same way as the input.</p>
 <p>For example, if the input image is rotated by 25 degrees then it is logical to expect that the output segmentation map should change consistently:</p>
-<p>In case of supervised training (ground truth annotations are available for the whole training set), the model attains transformation equivariance via data augmentation. 
-TE loss is useful in unsupervised or self-supervised settings (without ground truth labels).</p>
+<p><code>![Transformation equivariance idea](images/tf_equivariance_idea.png)</code>
+</p>
+<div class="flash flash-warn">
+    <svg class="octicon octicon-zap octicon octicon-zap octicon octicon-zap" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M10.561 1.5a.016.016 0 00-.01.004L3.286 8.571A.25.25 0 003.462 9H6.75a.75.75 0 01.694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0012.538 7H9.25a.75.75 0 01-.683-1.06l2.008-4.418.003-.006a.02.02 0 00-.004-.009.02.02 0 00-.006-.006L10.56 1.5zM9.504.43a1.516 1.516 0 012.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.25 1.25 0 01-.871.354h-.302a1.25 1.25 0 01-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429z"></path></svg>
+    <strong>Important: </strong>In case of supervised training (ground truth annotations are available for the whole training set), the model attains transformation equivariance via data augmentation. 
+</div>TE loss is useful in unsupervised or self-supervised settings (without ground truth labels).
 
 </div>
 </div>
@@ -190,6 +196,45 @@ TE loss is useful in unsupervised or self-supervised settings (without ground tr
 <p>Transformation consistency means that when an image changes under transformations, the corresponding pixel-based label should change the same way.</p>
 <p>So if model outputs a segmentation mask or heatmaps for an image. If we transform the image, the output should change the same way.</p>
 <p>We talk only about transformation in space and not color transformations. Color perturbations does not change detected objects in space.</p>
+<p><code>![Transformation equivariance loss](images/tf_equivariance.png)</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Formula">
+<a class="anchor" href="#Formula" aria-hidden="true"><span class="octicon octicon-link"></span></a>Formula<a class="anchor-link" href="#Formula"> </a>
+</h2>
+<p>Let us denote $F$ - the model, $T$ – transformation, $x$ – input image, $D$ - error function in the image space.</p>
+<p>Function $D$ depends on the application and can be a mean squared error or a <a href="https://deepai.org/machine-learning-glossary-and-terms/perceptual-loss-function">perceptual loss</a>.</p>
+<p><strong>Transformation Equivariance (TE)</strong> loss is formulated as follows:</p>
+$$
+L_{TE}(x) = D\big(F(T(x)) - T(F(x))\big)
+$$<p></p>
+<div class="flash">
+    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
+    <strong>Note: </strong>The assumption here is that the spatial dimensions (heights and width) of input images and output (e.g., segmentation maps or heatmaps) are the same. However, in practice output of models is smaller than the input because it reduces the number of parameters.
+</div>Our implementation resizes (with bilinear interpolation) the output of the model to match the image size before the loss computation.
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Differentiable-transformations">
+<a class="anchor" href="#Differentiable-transformations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Differentiable transformations<a class="anchor-link" href="#Differentiable-transformations"> </a>
+</h2>
+<p>TE loss requires the ability to <strong>backpropagate through the transformation</strong>. 
+While image transformations are provided in many augmentation pipelines such as <a href="https://pytorch.org/vision/stable/transforms.html">Pytorch Torchvision transforms</a>, <a href="https://keras.io/api/preprocessing/image/">Keras image data preprocessing</a>, <a href="https://github.com/aleju/imgaug">imgaug</a> and <a href="https://opencv.org/">OpenCV</a>, these transformations do not support differentiation.</p>
+<p>Fortunately, a new library <a href="https://kornia.readthedocs.io/en/latest/index.html"><strong>Kornia</strong></a> comes to the resque to implement differentiable image transformations.
+Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
+<blockquote>
+<p>-- <cite>Inspired by OpenCV, this library is composed by a subset of packages containing operators that can be inserted within neural networks to train models to perform image transformations, ... that operate directly on tensors. </cite></p>
+</blockquote>
+<p>Now let's see how TE loss is computed on three examples.</p>
 
 </div>
 </div>
@@ -954,7 +999,7 @@ TE loss is useful in unsupervised or self-supervised settings (without ground tr
 <p>Typing <code>&gt; Important: Pay attention! It's important.</code> will render this:
 </p>
 <div class="flash flash-warn">
-    <svg class="octicon octicon-zap octicon octicon-zap octicon octicon-zap" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M10.561 1.5a.016.016 0 00-.01.004L3.286 8.571A.25.25 0 003.462 9H6.75a.75.75 0 01.694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0012.538 7H9.25a.75.75 0 01-.683-1.06l2.008-4.418.003-.006a.02.02 0 00-.004-.009.02.02 0 00-.006-.006L10.56 1.5zM9.504.43a1.516 1.516 0 012.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.25 1.25 0 01-.871.354h-.302a1.25 1.25 0 01-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429z"></path></svg>
+    <svg class="octicon octicon-zap octicon octicon-zap octicon octicon-zap octicon octicon-zap" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M10.561 1.5a.016.016 0 00-.01.004L3.286 8.571A.25.25 0 003.462 9H6.75a.75.75 0 01.694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0012.538 7H9.25a.75.75 0 01-.683-1.06l2.008-4.418.003-.006a.02.02 0 00-.004-.009.02.02 0 00-.006-.006L10.56 1.5zM9.504.43a1.516 1.516 0 012.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.25 1.25 0 01-.871.354h-.302a1.25 1.25 0 01-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429z"></path></svg>
     <strong>Important: </strong>Pay attention! It’s important.
 </div>
 <p>Typing <code>&gt; Tip: This is my tip.</code> will render this:
@@ -966,13 +1011,13 @@ TE loss is useful in unsupervised or self-supervised settings (without ground tr
 <p>Typing <code>&gt; Note: Take note of this.</code> will render this:
 </p>
 <div class="flash">
-    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
+    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
     <strong>Note: </strong>Take note of this.
 </div>
 <p>Typing <code>&gt; Note: A doc link to [an example website: fast.ai](https://www.fast.ai/) should also work fine.</code> will render in the docs:
 </p>
 <div class="flash">
-    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
+    <svg class="octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
     <strong>Note: </strong>A doc link to <a href="https://www.fast.ai/">an example website: fast.ai</a> should also work fine.
 </div>
 

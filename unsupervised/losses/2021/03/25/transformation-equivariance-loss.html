@@ -143,6 +143,7 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#Discussion">Discussion </a></li>
 <li class="toc-entry toc-h2"><a href="#Formula">Formula </a></li>
 <li class="toc-entry toc-h2"><a href="#Differentiable-transformations">Differentiable transformations </a></li>
+<li class="toc-entry toc-h2"><a href="#Implementation">Implementation </a></li>
 <li class="toc-entry toc-h1"><a href="#Example-1:-Dummy-data-on-1-layer-CNN-model">Example 1: Dummy data on 1-layer CNN model </a></li>
 <li class="toc-entry toc-h1"><a href="#Example-2:-Real-data-on-1-layer-CNN-model">Example 2: Real data on 1-layer CNN model </a></li>
 <li class="toc-entry toc-h1"><a href="#Example-3:-Real-data-on-pre-trained-segmentation-model">Example 3: Real data on pre-trained segmentation model </a></li>
@@ -184,8 +185,7 @@ window.onload = wrap_img;
 <p><strong>Transformation equivariance (TE)</strong> loss is a constraint that can be applied to learning pixel-level labels such as segmentation, keypoint localization or parts detection. 
 TE constraint ensures that the output of the model changes the same way as the input under spatial transformations.</p>
 <p>For example, if the input image is rotated by 25 degrees then it is logical to expect that the output segmentation map should change consistently:</p>
-<p><code>![](my_icons/tf_equivariance.png)</code></p>
-<p><code>![](my_icons/fastai_logo.png)</code></p>
+<p><img src="/blog/images/copied_from_nb/my_icons/tf_equivariance.png" alt=""></p>
 
 </div>
 </div>
@@ -246,6 +246,15 @@ Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
 </blockquote>
 <p>Now let's see how TE loss is computed on three examples.</p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Implementation">
+<a class="anchor" href="#Implementation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation<a class="anchor-link" href="#Implementation"> </a>
+</h2>
 </div>
 </div>
 </div>

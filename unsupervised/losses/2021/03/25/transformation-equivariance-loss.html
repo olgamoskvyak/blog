@@ -112,7 +112,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      16 min read
+      17 min read
     
 </span></p>
 
@@ -303,9 +303,9 @@ Kornia replicates OpenCV functions on tensors and allows differentiation.</p>
 <p>Parameter <code>tf_matrices</code> is a tensor of transformation matrices generated for a batch with the method <code>set_tf_matrices</code>. The shape of the <code>tf_matrices</code> tensor depends on the type of the transformation, e.g., shape (batch_size, 2, 3) for rotations, (batch_size, 3, 3) for perspective transformations. One transformation matix is generated per an image in the batch. The same transformation is applied to the input image $x$ and the model's output $F(x)$.</p>
 <p>Method <code>transform</code> applies transformations with the matrices <code>tf_matrices</code>.
 The same transformation matrices can be applied to the input image and output of the model only if the spatial dimensions (heights and width) are the same. However, in practice, an output of the model is smaller than the input.
-If dimensions of the input and the output are different, our implementation uses <code>Resize</code> method with  bilinear interpolation from Kornia to resize the output of the model to match the input size before the loss computation.</p>
+If dimensions of the input and the output are different, our implementation uses <code>Resize</code> method with  bilinear interpolation from Kornia to resize the output of the model to match the input size before the loss computation.
+For more control in resizing, it is recommended to include upscale/downscale layers to the model.</p>
 <p>Method <code>forward</code> computes the loss on <code>tfx</code> - a transformed model's output and <code>ftx</code> - a model's output on the transformed input.</p>
-<p>The class below implements rotation transformations.</p>
 
 </div>
 </div>
@@ -321,14 +321,31 @@ If dimensions of the input and the output are different, our implementation uses
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">TfEquivarianceLoss</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">""" Transformation Equivariance Loss</span>
+    <span class="sd">""" Transformation Equivariance (TE) Loss.</span>
+
+<span class="sd">    TE loss penalizes the difference between output of the model on the</span>
+<span class="sd">    transformed image and a transformed model's output of the original image.</span>
+<span class="sd">    TE loss utilizes differentiable transformations from Kornia library.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">        transform_type (str): type of transformation.</span>
+<span class="sd">            Implemented types: ['rotation'].</span>
+<span class="sd">            Default: 'rotation'</span>
+<span class="sd">        consistency_type (str): difference function in the image space.</span>
+<span class="sd">            Implemented types : ['mse']'</span>
+<span class="sd">            Default: 'mse'</span>
+<span class="sd">        batch_size (int): expected size of the batch. Default: 32.</span>
+<span class="sd">        max_angle (int): maximum angle of rotation for rotation transformation.</span>
+<span class="sd">            Default: 90.</span>
+<span class="sd">        input_hw (tuple of int): image size (height, width).</span>
+<span class="sd">            Default: (256, 128).</span>
 <span class="sd">    """</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">transform_type</span><span class="o">=</span><span class="s1">'rotation'</span><span class="p">,</span>
                  <span class="n">consistency_type</span><span class="o">=</span><span class="s1">'mse'</span><span class="p">,</span>
                  <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
                  <span class="n">max_angle</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
-                 <span class="n">input_hw</span><span class="o">=</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span>
+                 <span class="n">input_hw</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
                  <span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TfEquivarianceLoss</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform_type</span> <span class="o">=</span> <span class="n">transform_type</span>
@@ -347,42 +364,51 @@ If dimensions of the input and the output are different, our implementation uses
         <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrices</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">set_tf_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">""" Set transformation matrices</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_type</span> <span class="o">==</span> <span class="s1">'rotation'</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rotation</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">max_angle</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rotation</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_get_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">max_angle</span><span class="p">,</span> <span class="n">input_hw</span><span class="p">):</span>
-        <span class="sd">""" Get a list of transformations</span>
-<span class="sd">        Input:</span>
-<span class="sd">            bs (int): batch size = number of transformations to generate</span>
+    <span class="k">def</span> <span class="nf">_get_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">""" Get transformation matrices</span>
+
 <span class="sd">        Output:</span>
-<span class="sd">            rot_mat (float torch.Tensor): tensor of shape (bs, 2, 3)</span>
+<span class="sd">            rot_mat (float torch.Tensor): tensor of shape (batch_size, 2, 3)</span>
 <span class="sd">        """</span>
         <span class="c1"># define the rotation center</span>
-        <span class="n">center</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">center</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_hw</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># x</span>
-        <span class="n">center</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_hw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># y</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">center</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># x</span>
+        <span class="n">center</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># y</span>
 
         <span class="c1"># create transformation (rotation)</span>
-        <span class="n">angle</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="n">max_angle</span><span class="p">,</span> <span class="n">max_angle</span><span class="p">)</span>
-                              <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bs</span><span class="p">)])</span>
-
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">max_angle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_angle</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)]</span>
+        <span class="p">)</span>
         <span class="c1"># define the scale factor</span>
-        <span class="n">scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
 
         <span class="c1"># compute the transformation matrix</span>
         <span class="n">tf_matrices</span> <span class="o">=</span> <span class="n">kornia</span><span class="o">.</span><span class="n">get_rotation_matrix2d</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tf_matrices</span>
 
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="c1"># If transformation input is different from the input size</span>
-        <span class="c1"># defined for the loss, resize input</span>
-        <span class="c1"># Input size is important because transformation matrices are</span>
-        <span class="c1"># defined for the image size, e.g the center of rotation.</span>
+        <span class="sd">""" Transform input with transformation matrices</span>
+<span class="sd">        Input:</span>
+<span class="sd">            x (float torch.Tensor): input data of shape (batch_size, ch, h, w)</span>
+
+<span class="sd">        Output:</span>
+<span class="sd">            xf_x (float torch.Tensor): transformed data</span>
+<span class="sd">                of shape (batch_size, ch, h, w)</span>
+
+<span class="sd">        If transformation input is different from the input size defined</span>
+<span class="sd">        in the construction then resize the input before transformation.</span>
+<span class="sd">        Input size is important because transformation matrices depend on</span>
+<span class="sd">        the image size, e.g the center of rotation.</span>
+<span class="sd">        """</span>
         <span class="n">resize_input</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Check input size</span>
         <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">:</span>
             <span class="n">curr_hw</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">Resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
@@ -394,7 +420,7 @@ If dimensions of the input and the output are different, our implementation uses
             <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrices</span><span class="p">,</span>
             <span class="n">dsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_hw</span><span class="p">)</span>
 
-        <span class="c1"># Transform back if image is resized</span>
+        <span class="c1"># Transform back if image has been resized</span>
         <span class="k">if</span> <span class="n">resize_input</span><span class="p">:</span>
             <span class="n">tf_x</span> <span class="o">=</span> <span class="n">Resize</span><span class="p">(</span><span class="n">curr_hw</span><span class="p">)(</span><span class="n">tf_x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tf_x</span>

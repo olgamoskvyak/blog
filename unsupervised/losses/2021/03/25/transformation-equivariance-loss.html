@@ -186,8 +186,9 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Transformation equivariance (TE)</strong> loss is a constraint that can be applied to learning pixel-level labels such as segmentation, keypoint localization or parts detection. 
-TE constraint ensures that the output of the model changes the same way as the input under spatial transformations.</p>
+<p><strong>Transformation equivariance (TE)</strong> loss is an unsupervised constraint for learning pixel-level labels in segmentation, keypoint localization or parts detection tasks. 
+A function $F$ is called <strong>equivariant</strong> with respect to the transformation $T$  if $ F(T(x)) = T(F(x))$. In other words, applying a transformation to $x$ is equivalent to applying it to the result  $F(x)$.
+TE loss ensures that the output of the model changes the same way as the input under spatial transformations.</p>
 <p>For example, if the input image is rotated by 25 degrees then it is logical to expect that the output segmentation map should change consistently:</p>
 <p><img src="/blog/images/copied_from_nb/my_icons/tf_equivariance_idea.png" alt=""></p>
 <p>TE loss enforces a commutative property on a model and augmentation operations that include spatial transformation (e.g, rotations and translations), meaning that the order of applying these two operations does not matter. In other words, TE loss penalizes the difference between output of the model on the transformed image and a transformed model's output of the original image:</p>
@@ -195,7 +196,7 @@ TE constraint ensures that the output of the model changes the same way as the i
 </p>
 <div class="flash flash-warn">
     <svg class="octicon octicon-zap" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M10.561 1.5a.016.016 0 00-.01.004L3.286 8.571A.25.25 0 003.462 9H6.75a.75.75 0 01.694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0012.538 7H9.25a.75.75 0 01-.683-1.06l2.008-4.418.003-.006a.02.02 0 00-.004-.009.02.02 0 00-.006-.006L10.56 1.5zM9.504.43a1.516 1.516 0 012.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.25 1.25 0 01-.871.354h-.302a1.25 1.25 0 01-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429z"></path></svg>
-    <strong>Important: </strong>In case of supervised training (ground truth annotations are available for the whole training set), the model attains transformation equivariance via data augmentation. TE loss is useful in unsupervised or self-supervised settings (without ground truth labels). 
+    <strong>Important: </strong>TE loss is useful in unsupervised or self-supervised settings (without ground truth labels) or semi-supervised settings (ground truth labels are available for a subset of the training data). In case of supervised training (ground truth annotations are available for the whole training set), the model attains transformation equivariance via data augmentation. 
 </div>
 
 </div>
@@ -213,30 +214,28 @@ TE constraint ensures that the output of the model changes the same way as the i
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let us denote $F$ - the model, $T$ – transformation, $x$ – input image, $D$ - error function in the image space. 
+<p>Let us denote $F$ - a model, $T$ – a spatial transformation, $x$ – an input image, $D$ - an error function in the image space. 
 Function $D$ depends on the application and can be a mean squared error or a <a href="https://deepai.org/machine-learning-glossary-and-terms/perceptual-loss-function">perceptual loss</a>.
 <strong>Transformation Equivariance (TE)</strong> loss is formulated as follows:</p>
 $$
 L_{TE}(x) = D\big(F(T(x)) - T(F(x))\big)
-$$<p></p>
-<div class="flash">
-    <svg class="octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
-    <strong>Note: </strong>The formula above is applicable to spatial transformations and not color transformations. Color perturbations does not change detected objects in space. 
-</div>
-
+$$
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Note that, after applying a transformation, some landmarks may go outside of the image boundary,
-and cause the visibility issue. 
+<p></p>
+<div class="flash">
+    <svg class="octicon octicon-info" viewbox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path></svg>
+    <strong>Note: </strong>After applying a transformation, some landmarks may go outside of the image boundary,
+</div>and cause the visibility issue. 
 This problem is alleviated in our formulation by applying the same transformation to an image. 
 This is different from equivariant landmark transformation (ELT) loss
 proposed by <a href="https://arxiv.org/pdf/1709.01591.pdf">Honari et al. (2018)</a> which computes an inverse transformation instead. 
 In essence, inverse transformation cannot bring these landmarks back meaning that inverse transformation does
-not output the original image. Our approach avoids this issue.</p>
+not output the original image. Our approach avoids this issue.
 
 </div>
 </div>

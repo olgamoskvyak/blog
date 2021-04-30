@@ -186,7 +186,18 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Transformation equivariance (TE)</strong> loss is an unsupervised constraint for learning pixel-level labels in segmentation, keypoint localization or parts detection tasks.</p>
+<p>In machine learning, there are two main ways to train a model: supervised and unsupervised. 
+Supervised learning uses ground truth labels while unsupervised learning does not have access to labeled data.
+Unsupervised learning is important because labeling datasets is a time-consuming and labour-intensive task.
+It is especially crucial for tasks with complex labels such as semantic segmentation, keypoint localization or object detection.</p>
+<p>In this post, I explain <strong>transformation equivariance (TE)</strong> loss which is an unsupervised constraint for learning pixel-level labels in segmentation, keypoint localization or parts detection tasks.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>A function $F$ is called <strong>equivariant</strong> with respect to the transformation $T$  if $ F(T(x)) = T(F(x))$. In other words, applying a transformation to $x$ is equivalent to applying it to the result  $F(x)$.</p>
 <p>Transformation equivariant loss ensures that the output of the model changes the same way as the input under spatial transformations.
 For example, if the input image is rotated by 25 degrees then it is logical to expect that the output segmentation map should change consistently:</p>
